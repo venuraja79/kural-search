@@ -4,3 +4,4 @@ numpy
 sklearn
 tqdm
 pandas
+gunicorn
