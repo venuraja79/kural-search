@@ -94,11 +94,13 @@ def build_search_index(rels, v):
 
     search_dict = []
     for p in rels:
-        #dict_title = makedict(p['rel_title'], forceidf=10)
-        #dict_authors = makedict(p['rel_authors'], forceidf=5)
-        dict_summary = makedict(p)
-        #qdict = merge_dicts([dict_title, dict_authors, dict_summary])
-        qdict = dict_summary
+        dict_title = makedict(p['kural'], forceidf=10)
+        dict_adikaram = makedict(p['adikaram_name'], forceidf=5)
+        dict_mk = makedict(p['mk'])
+        dict_mv = makedict(p['mv'])
+        dict_sp = makedict(p['sp'])
+        qdict = merge_dicts([dict_title, dict_adikaram, dict_mk, dict_mv, dict_sp])
+        #qdict = dict_summary
         search_dict.append(qdict)
 
     return search_dict
@@ -110,6 +112,10 @@ if __name__ == '__main__':
     df_1 = pd.read_csv('tamil_thirukkural_train.csv', encoding='utf-8')
     df_2 = pd.read_csv('tamil_thirukkural_test.csv', encoding='utf-8')
     df = pd.concat([df_1, df_2], axis=0)
+    df = df.reset_index()
+    x = df.to_dict(orient='records')
+    x = json.dumps(x, ensure_ascii=False)
+    jall = json.loads(x)
 
     text = df['kural'] + ' ' + df['mk'] + ' ' + df['mv'] + ' ' + df['sp']
 
@@ -117,5 +123,5 @@ if __name__ == '__main__':
     X, v = calculate_tfidf_features(text)
 
     # calculate the search index to support search
-    search_dict = build_search_index(text, v)
+    search_dict = build_search_index(jall, v)
     write_json(search_dict, 'search.json')
